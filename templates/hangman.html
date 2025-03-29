@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Hangman Game{% endblock %}
+
+{% block header %}Hangman Game{% endblock %}
+
+{% block content %}
+<style>
+    .box {
+        background-color: #ccc; /* Light grey background */
+        /*padding: 20px; /* White padding inside the boxes */
+        margin-bottom: 20px; /* Space between the boxes */
+        margin-left: 10px;
+        margin-right: 10px;
+        color: #333; /* Text color */
+        /*text-align: center; /* Center-align the text */
+        height: 150px; /* Set a fixed height for demonstration */
+    }
+    .top-boxes {
+        display: flex; /* Use flexbox to create a horizontal layout */
+    }
+    .canvas-box {
+        padding: unset;
+    }
+    .top-box {
+        height: 500px;
+        flex: 1; /* Each box takes equal width */
+    }
+    .vert-box {
+        /*text-align: center; /* Center-align the text */
+        padding: 20px;
+        height: unset;
+    }
+.letter {
+        margin-right: 5px; /* Adjust as needed */
+        /* font-family: monospace; */
+        font-size: xx-large;
+    }
+    .keyboard {
+        display: flex;
+        flex-wrap: wrap;
+        border: 10px solid;
+        border-color: #ccc;
+    }
+    .keyboard-box {
+        display: flex;
+        height:auto;
+        padding: 6px;
+    }
+    .key {
+        display: flex;
+        align-items: center;
+        align-items: center;
+        justify-content: center;
+        border: 5px solid;
+        background-color: #ccc;
+        width: 30px;
+        height: 50px;
+        margin-left: -5px;
+        margin-top: -5px;
+        font-size: larger;
+        cursor: pointer;
+        border-color: #f4f4f9;
+    }
+    .key-letter {
+        text-align: center;
+        /*background-color: #ccc; /* Light grey background */
+
+    }
+    .guess-box {
+        padding: 10px;
+        /* width: 20px; */
+        height: 40px;
+        display: flex;
+
+    }
+</style>
+<div class="top-boxes">
+    <div class="box top-box canvas-box">
+        <canvas id="canvas1" width="400" height="500"></canvas>
+    </div>
+    <div class="top-box" style="display: flex; flex-direction: column;">
+        <div class="box vert-box" id="result">
+        </div>
+        <div class="box vert-box" style="flex: 1; margin-bottom: unset;">
+            <span class="letter">Wrong:</span>
+            <div class="keyboard" id="wrong-guesses">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box keyboard-box">
+    <!-- Keyboard UI -->
+    <div class="keyboard">
+        {% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+        <div class="key" onclick="addLetter('{{ letter }}')" id="'{{ letter }}'">
+            
+            <div class="key-letter"> {{ letter }} </div>
+        
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+
+    var sofar = JSON.parse('{{ sofar | tojson }}');
+    var wrongGuesses = [];
+    
+    function addLetter(letter) {
+        // currentGuess += letter;
+        // var elem = document.getElementById('displayGuess');
+        fetch('/guess', {
+        method: 'POST',
+        body: JSON.stringify({
+            letter: letter,
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        var locs = data["locs"];
+        console.log(locs);
+        if (locs.length == 0) {
+            if (wrongGuesses.includes(letter)) {
+                return;
+            }
+            wrongGuesses.push(letter);
+            drawWrongGuesses(wrongGuesses);
+            drawStickMan(wrongGuesses.length);
+        } else {
+            data["locs"].forEach((loc) => {
+                sofar[loc[0]][loc[1]] = letter;
+            });
+            drawPlaceholder(sofar);
+        }
+    }
+    );
+}
+</script>
+
+        <script>
+            function drawStickMan(wrong_guesses) {
+            var canvas = document.getElementById('canvas1');
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            function drawLine(x1, y1, x2, y2) {
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            }
+
+            
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+
+            // gallows
+            drawLine(0, 450, 500, 450);
+            drawLine(50, 450, 50, 50);
+            drawLine(50, 50, 200, 50);
+            drawLine(200, 50, 200, 100);
+            ctx.stroke();
+            ctx.beginPath();
+
+
+            var steps = [
+                () => {
+                    ctx.arc(200, 150, 50, 0, 2 * Math.PI); // head
+                },
+              () => {
+            drawLine(200, 200, 200, 300); // body
+              },
+          () => { drawLine(200, 200, 150, 250); // left arm
+          },
+          () => { drawLine(200, 200, 250, 250); // right arm
+          },
+          () => { drawLine(200, 300, 150, 375); // left leg
+          },
+          () => { drawLine(200, 300, 250, 375); // left right
+
+              }
+            ]
+
+
+            for (var i = 0; i < wrong_guesses; i++) {
+                steps[i]();
+
+            }
+
+
+            ctx.stroke();
+
+            }
+            drawStickMan(0);
+
+        function drawPlaceholder(l) {
+            var r = document.getElementById("result");
+            r.replaceChildren([]);
+
+            for (var i = 0; i < l.length; i++) {
+                for (var j = 0; j < l[i].length; j++) {
+                    console.log(l[i][j]);
+                    var letter = document.createElement("what");
+                    letter.className = "letter";
+                    letter.innerText = l[i][j];
+                    r.appendChild(letter);
+                }
+                var letter = document.createElement("what");
+                letter.className = "letter";
+                letter.innerText = " ";
+                r.appendChild(letter);
+            }
+        }
+        drawPlaceholder(JSON.parse('{{ sofar | tojson }}'));
+
+        function drawWrongGuesses(l) {
+            var r = document.getElementById("wrong-guesses");
+            r.replaceChildren([]);
+
+            wrongGuesses.forEach((l) => {
+                var letter = document.createElement("what");
+                letter.className = "letter";
+                letter.innerText = l;
+                r.appendChild(letter);
+            }
+        
+        );
+        }
+        </script>
+{% endblock %}

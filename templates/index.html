@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Hangman Home{% endblock %}
+
+{% block header %}Let's Play Hangman!{% endblock %}
+
+{% block content %}
+    <p>Try to guess the word, one letter at a time.</p>
+    <form action="{{ url_for('guess') }}" method="post">
+        <label for="letter">Enter a letter:</label>
+        <input type="text" id="letter" name="letter" maxlength="1" required>
+        <button type="submit">Guess</button>
+    </form>
+{% endblock %}
