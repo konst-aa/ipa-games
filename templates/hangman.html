@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Hangman Game{% endblock %}
+{% block title %}IPA Hangman{% endblock %}
 
-{% block header %}Hangman Game{% endblock %}
+{% block header %}
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/base.css') }}">
+<a href="{{ url_for('index') }}" class="box-url">IPA Hangman</a>
+
+{% endblock %}
+
 
 {% block content %}
 <style>
@@ -27,14 +33,16 @@
         flex: 1; /* Each box takes equal width */
     }
     .vert-box {
-        /*text-align: center; /* Center-align the text */
         padding: 20px;
         height: unset;
+        display: flex;
+        flex-wrap: wrap;
     }
 .letter {
         margin-right: 5px; /* Adjust as needed */
         /* font-family: monospace; */
         font-size: xx-large;
+        font-family: 'Noto Serif', serif;
     }
     .keyboard {
         display: flex;
@@ -52,18 +60,20 @@
         align-items: center;
         align-items: center;
         justify-content: center;
-        border: 5px solid;
+        border: 8px solid;
         background-color: #ccc;
-        width: 30px;
-        height: 50px;
-        margin-left: -5px;
-        margin-top: -5px;
+        width: 55px;
+        height: 70px;
+        margin-left: -8px;
+        margin-top: -8px;
         font-size: larger;
         cursor: pointer;
         border-color: #f4f4f9;
     }
     .key-letter {
         text-align: center;
+        font-size: larger;
+        font-family: 'Noto Serif', serif;
         /*background-color: #ccc; /* Light grey background */
 
     }
@@ -80,11 +90,11 @@
         <canvas id="canvas1" width="400" height="500"></canvas>
     </div>
     <div class="top-box" style="display: flex; flex-direction: column;">
-        <div class="box vert-box" id="result">
-        </div>
+        <div class="box vert-box" id="result"></div>
+        <div class="box vert-box" id="hint"></div>
         <div class="box vert-box" style="flex: 1; margin-bottom: unset;">
-            <span class="letter">Wrong:</span>
-            <div class="keyboard" id="wrong-guesses">
+            <span class="letter" id="placeholder">wrong letters go here ...</span>
+            <div id="wrong-guesses">
             </div>
         </div>
     </div>
@@ -92,8 +102,16 @@
 
 <div class="box keyboard-box">
     <!-- Keyboard UI -->
-    <div class="keyboard">
-        {% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+    <div class="keyboard vert-box" style="justify-content: center">
+        {% for letter in 
+            
+    ['ɪ', 'ə', 't', 'n', 's', 'ɹ', 'l', 'k',
+     'd', 'i', 'm', 'p', 'ɛ', 'ʊ', 'æ', 'b',
+     'a', 'f', 'e', 'z', 'ʃ', 'ɒ', 'ʌ', 'ɡ',
+     'ŋ', 'u', 'v', 'ɑ', 'ɔ', 'ʒ', 'w', 'j',
+     'h', 'o', 'ɜ', 'θ', 'ɚ', 'r', 'ɝ', 'ð', 'ɫ']
+            
+            %}
         <div class="key" onclick="addLetter('{{ letter }}')" id="'{{ letter }}'">
             
             <div class="key-letter"> {{ letter }} </div>
@@ -106,6 +124,17 @@
 
     var sofar = JSON.parse('{{ sofar | tojson }}');
     var wrongGuesses = [];
+    var maxWrong = 6;
+
+    function giveUp() {
+        fetch('/giveup', {
+            method: 'POST'
+        }).then(response => response.json())
+        .then(data => {
+            drawPlaceholder(data.result);
+
+        }) 
+    };
     
     function addLetter(letter) {
         // currentGuess += letter;
@@ -125,7 +154,12 @@
                 return;
             }
             wrongGuesses.push(letter);
-            drawWrongGuesses(wrongGuesses);
+            if (wrongGuesses.length >= maxWrong) {
+                giveUp();
+            }
+            var elem = document.getElementById('placeholder');
+            elem.innerHTML = ""; // remove the "Wrong:" text
+            fillWithLetters("wrong-guesses",wrongGuesses);
             drawStickMan(wrongGuesses.length);
         } else {
             data["locs"].forEach((loc) => {
@@ -187,6 +221,15 @@
 
             }
 
+            if (wrong_guesses >= steps.length) {
+                // draw dead eyes
+                drawLine(175, 130, 190, 145);
+                drawLine(190, 130, 175, 145);
+
+                drawLine(225, 130, 210, 145);
+                drawLine(210, 130, 225, 145);
+            }
+
 
             ctx.stroke();
 
@@ -208,16 +251,19 @@
                 var letter = document.createElement("what");
                 letter.className = "letter";
                 letter.innerText = " ";
+                letter.style.width = "10px";
+                letter.style.display = "inline-block";
                 r.appendChild(letter);
             }
         }
         drawPlaceholder(JSON.parse('{{ sofar | tojson }}'));
 
-        function drawWrongGuesses(l) {
-            var r = document.getElementById("wrong-guesses");
+        function fillWithLetters(id, l) {
+            console.log(l);
+            var r = document.getElementById(id);
             r.replaceChildren([]);
 
-            wrongGuesses.forEach((l) => {
+            l.forEach((l) => {
                 var letter = document.createElement("what");
                 letter.className = "letter";
                 letter.innerText = l;
@@ -226,5 +272,7 @@
         
         );
         }
+
+        fillWithLetters("hint", JSON.parse('{{ hint | tojson }}'));
         </script>
 {% endblock %}

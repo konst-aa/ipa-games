@@ -1,14 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Hangman Home{% endblock %}
+{% block title %}IPA Games Home{% endblock %}
 
-{% block header %}Let's Play Hangman!{% endblock %}
+{% block header %}IPA Games Home{% endblock %}
 
 {% block content %}
-    <p>Try to guess the word, one letter at a time.</p>
-    <form action="{{ url_for('guess') }}" method="post">
-        <label for="letter">Enter a letter:</label>
-        <input type="text" id="letter" name="letter" maxlength="1" required>
-        <button type="submit">Guess</button>
-    </form>
+
+<style>
+    .box {
+        background-color: #ccc; /* Light grey background */
+        padding: 20px; /* White padding inside the boxes */
+        margin-bottom: 20px; /* Space between the boxes */
+        margin-left: 10px;
+        margin-right: 10px;
+        color: #333; /* Text color */
+        text-align: center; /* Center-align the text */
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/base.css') }}">
+<a href="{{ url_for('hangman') }}" class="box-url">
+    <div class="box">
+        <h2 style="text-align: center;">Hangman</h2>
+        <p style="text-align: center;">Try to translate an English idiom letter by letter into IPA</p>
+    </div>
+</a>
+
+<h2 style="text-align: center;">...</h2>
+<p style="text-align: center;">Please make this better: 
+    <a href="https://github.com/konst-aa/ipa-games">GitHub Repo</a>
+</p>
 {% endblock %}

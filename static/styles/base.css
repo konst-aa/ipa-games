@@ -1,0 +1,17 @@
+.header {
+    background-color: #ffccf9;
+    color: #333;
+    padding: 10px 0; /* Padding adjusted for top and bottom only */
+    text-align: center;
+    border-bottom: 3px solid #f36f88; /* Cute stripe under the header. cute indeed */
+}
+.container {
+    margin: 0 auto;
+    max-width: 800px; /* Adjust this value based on your preference */
+    padding: 20px;
+    text-align: left;
+}
+.box-url {
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Text color for the link */
+}
