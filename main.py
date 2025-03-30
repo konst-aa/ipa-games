@@ -1,15 +1,14 @@
 # Importing flask module in the project is mandatory
 # An object of Flask class is our WSGI application.
 import random
-from flask import Flask, redirect, render_template, request, session, url_for, Response
+from flask import Flask, render_template, request, session, Response
 import json
+import os
 
 import ipa
 
-# Flask constructor takes the name of 
-# current module (__name__) as argument.
 app = Flask(__name__)
-app.secret_key = "the most secret thing ever"
+app.secret_key = str(os.urandom(64))
 
 idioms = []
 
