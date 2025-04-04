@@ -8,7 +8,7 @@ import os
 import ipa
 
 app = Flask(__name__)
-app.secret_key = str(os.urandom(64))
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "top sneaky sneaky sneaky")
 
 idioms = []
 

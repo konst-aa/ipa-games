@@ -90,8 +90,12 @@
         <canvas id="canvas1" width="400" height="500"></canvas>
     </div>
     <div class="top-box" style="display: flex; flex-direction: column;">
-        <div class="box vert-box" id="result"></div>
-        <div class="box vert-box" id="hint"></div>
+        <div class="box vert-box">
+            <div id="result">
+            </div>
+        </div>
+        <div class="box vert-box" id="hint">
+        </div>
         <div class="box vert-box" style="flex: 1; margin-bottom: unset;">
             <span class="letter" id="placeholder">wrong letters go here ...</span>
             <div id="wrong-guesses">
@@ -148,13 +152,19 @@
     .then(response => response.json())
     .then(data => {
         var locs = data["locs"];
-        console.log(locs);
+        
+        if (wrongGuesses.length >= maxWrong) {
+            return;
+        }
+        
         if (locs.length == 0) {
             if (wrongGuesses.includes(letter)) {
                 return;
             }
+
             wrongGuesses.push(letter);
-            if (wrongGuesses.length >= maxWrong) {
+
+            if (wrongGuesses.length == maxWrong) {
                 giveUp();
             }
             var elem = document.getElementById('placeholder');
@@ -252,7 +262,7 @@
                 letter.className = "letter";
                 letter.innerText = " ";
                 letter.style.width = "10px";
-                letter.style.display = "inline-block";
+                // letter.style.display = "inline-block";
                 r.appendChild(letter);
             }
         }

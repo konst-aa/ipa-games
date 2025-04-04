@@ -1,13 +1,13 @@
-import json
-import random
 from pprint import pp
 from typing import List
 from requests import get
 from dataclasses import dataclass
+import os
 
 
 def info(word: str):
-    return get("http://127.0.0.1:6231/define", {"word": word}).json()
+    DICT_URL = os.environ.get("DICT_URL", "http://127.0.0.1:6231")
+    return get(f"{DICT_URL}/define", {"word": word}).json()
 
 
 @dataclass

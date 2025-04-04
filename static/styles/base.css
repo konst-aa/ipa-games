@@ -15,3 +15,8 @@
     text-decoration: none; /* Remove underline from links */
     color: #333; /* Text color for the link */
 }
+
+html, body {
+    margin: 0;
+    padding: 0;
+  }  

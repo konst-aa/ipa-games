@@ -1,0 +1,20 @@
+FROM ghcr.io/astral-sh/uv:debian
+
+RUN mkdir ipa-games
+WORKDIR /root/ipa-games
+
+
+COPY pyproject.toml pyproject.toml
+COPY uv.lock uv.lock
+
+RUN uv venv
+RUN bash -c 'source .venv/bin/activate && uv pip install -r pyproject.toml'
+
+
+COPY assets assets
+COPY templates templates
+COPY static static
+
+COPY idioms.txt main.py ipa.py run_flask.sh ./
+
+EXPOSE 8000

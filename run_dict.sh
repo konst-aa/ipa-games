@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
+source .venv/bin/activate
 
-uvicorn english_api:app --port 6231
+uvicorn english_api:app --host 0.0.0.0 --port $1
